@@ -1,12 +1,16 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useProducts } from "../hooks/useProducts";
+import { useCategory } from "../../../features/categories/hooks/useCategory";
 import type { Product } from "../types/product";
+import ProductCard from "../components/ProductCard";
+import Select from "../../../components/ui/Select";
 import { FiSearch, FiChevronLeft, FiChevronRight, FiLoader } from "react-icons/fi";
 
 export default function ProductsPage() {
+    const [searchParams] = useSearchParams();
     const [search, setSearch] = useState("");
-    const [categoryId, setCategoryId] = useState("");
+    const [categoryId, setCategoryId] = useState(searchParams.get("categoryId") || "");
     const [minPrice, setMinPrice] = useState("");
     const [maxPrice, setMaxPrice] = useState("");
     const [sortBy, setSortBy] = useState("");
@@ -20,7 +24,7 @@ export default function ProductsPage() {
         isError,
     } = useProducts({
         pageNumber,
-        pageSize: 5,
+        pageSize: 12,
         search: search || undefined,
         categoryId: categoryId ? Number(categoryId) : undefined,
         minPrice: minPrice ? Number(minPrice) : undefined,
@@ -31,6 +35,17 @@ export default function ProductsPage() {
 
     console.log("Products API response:", data);
 
+    const { data: categories } = useCategory();
+
+    console.log("Categories from hook:", categories);
+
+    const categoryOptions = [
+        { value: "", label: "All Categories" },
+        ...(categories?.map((cat: { categoryId: number; name: string }) => ({
+            value: String(cat.categoryId),
+            label: cat.name,
+        })) || []),
+    ];
 
     const products: Product[] = data?.items ?? [];
     const totalPages = data?.totalPages ?? 1;
@@ -38,8 +53,24 @@ export default function ProductsPage() {
 
     if (!data && isLoading) {
         return (
-            <div className="flex items-center justify-center min-h-[50vh]">
-                <div className="text-gray-500 text-lg">Loading products...</div>
+            <div className="max-w-7xl mx-auto px-4 py-8">
+                <div className="mb-8">
+                    <div className="h-8 w-32 bg-gray-200 rounded animate-pulse mb-2"></div>
+                    <div className="h-4 w-48 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {[...Array(8)].map((_, i) => (
+                        <div key={i} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                            <div className="h-48 bg-gray-200 animate-pulse"></div>
+                            <div className="p-5 space-y-3">
+                                <div className="h-5 w-3/4 bg-gray-200 rounded animate-pulse"></div>
+                                <div className="h-5 w-1/4 bg-gray-200 rounded animate-pulse"></div>
+                                <div className="h-3 w-full bg-gray-200 rounded animate-pulse"></div>
+                                <div className="h-3 w-1/3 bg-gray-200 rounded animate-pulse"></div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
         );
     }
@@ -86,19 +117,16 @@ export default function ProductsPage() {
                     />
                 </div>
 
-                <select
+                <Select
                     value={categoryId}
-                    onChange={(e) => {
-                        setCategoryId(e.target.value);
+                    onChange={(value) => {
+                        setCategoryId(value);
                         setPageNumber(1);
                     }}
-                    className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-gray-700"
-                >
-                    <option value="">All Categories</option>
-                    <option value="1027">Category 1</option>
-                    <option value="1021">Category 2</option>
-                    <option value="1023">Category 3</option>
-                </select>
+                    options={categoryOptions}
+                    placeholder="All Categories"
+                    className="min-w-[180px]"
+                />
 
                 <input
                     type="number"
@@ -108,7 +136,7 @@ export default function ProductsPage() {
                         setMinPrice(e.target.value);
                         setPageNumber(1);
                     }}
-                    className="w-28 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent placeholder:text-gray-400"
+                    className="w-28 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent placeholder:text-black-400"
                 />
 
                 <input
@@ -162,33 +190,7 @@ export default function ProductsPage() {
                     )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
                         {products.map((product: Product) => (
-                            <Link
-                                key={product.productId}
-                                to={`/products/${product.productId}`}
-                                className="group bg-white rounded-xl border border-gray-200 hover:shadow-lg hover:border-gray-300 transition-all duration-200 overflow-hidden"
-                            >
-                                <div className="h-48 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-                                    <div className="text-gray-300 text-6xl font-light">
-                                        {product.name.charAt(0).toUpperCase()}
-                                    </div>
-                                </div>
-                                <div className="p-5">
-                                    <h3 className="font-semibold text-gray-900 group-hover:text-black transition-colors truncate">
-                                        {product.name}
-                                    </h3>
-                                    <p className="text-lg font-bold text-gray-900 mt-1">
-                                        ${product.price}
-                                    </p>
-                                    <p className="text-sm text-gray-500 mt-2 line-clamp-2">
-                                        {product.description}
-                                    </p>
-                                    {product.stock !== undefined && (
-                                        <p className={`text-xs mt-3 ${product.stock > 0 ? "text-green-600" : "text-red-500"}`}>
-                                            {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
-                                        </p>
-                                    )}
-                                </div>
-                            </Link>
+                            <ProductCard key={product.productId} product={product} />
                         ))}
                     </div>
 

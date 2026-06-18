@@ -14,7 +14,6 @@ export default function Register() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         registerMutation.mutate({ name, email, password });
-        navigate(-1);
     };
 
     return (

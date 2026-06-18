@@ -43,6 +43,14 @@ export const orderEndpoints = {
 	UPDATE_STATUS: (orderId: number) => `/orders/${orderId}/status`
 };
 
+//Shipment Address Endpoints
+export const shipmentEndpoints = {
+	GET_ADDRESSES: '/shipment/addresses',
+	POST_ADDRESS: '/shipment/addresses',
+	PUT_ADDRESS: (addressId: number) => `/shipment/addresses/${addressId}`,
+    DELETE_ADDRESS: (addressId: number) => `/shipment/addresses/${addressId}`
+}
+
 // Payment Endpoints
 export const paymentEndpoints = {
 	PAYMENT: '/payment'

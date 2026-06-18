@@ -29,6 +29,7 @@ export default function Navbar() {
                     <li><Link to="/" className="hover:text-gray-400 transition-colors">Home</Link></li>
                     <li><Link to="/products" className="hover:text-gray-400 transition-colors">Products</Link></li>
                     <li><Link to="/cart" className="hover:text-gray-400 transition-colors">Cart</Link></li>
+                    <li><Link to="/orders" className="hover:text-gray-400 transition-colors">Orders</Link></li>
                 </ul>
 
                 {isAuthenticated ? (

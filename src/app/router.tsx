@@ -7,6 +7,10 @@ import ProtectedRoute from "../routes/ProtectedRoute";
 import ProductsPage from "../features/products/pages/ProductsPage";
 import ProductDetailsPage from "../features/products/pages/ProductDetailsPage";
 import CartPage from "../features/cart/pages/CartPage";
+import CheckoutPage from "../features/checkout/pages/CheckoutPage";
+import OrderConfirmationPage from "../features/orders/pages/OrderConfirmationPage";
+import OrderHistoryPage from "../features/orders/pages/OrderHistoryPage";
+import NotFoundPage from "../pages/NotFoundPage";
 
 export const router = createBrowserRouter([
     // All pages with navbar go under MainLayout
@@ -35,6 +39,40 @@ export const router = createBrowserRouter([
                         element: <CartPage />,
                     },
                 ],
+            },
+            {
+                path: "checkout",
+                element: <ProtectedRoute />,
+                children: [
+                    {
+                        path: "",
+                        element: <CheckoutPage />,
+                    },
+                ],
+            },
+            {
+                path: "order-confirmation",
+                element: <ProtectedRoute />,
+                children: [
+                    {
+                        path: "",
+                        element: <OrderConfirmationPage />,
+                    },
+                ],
+            },
+            {
+                path: "orders",
+                element: <ProtectedRoute />,
+                children: [
+                    {
+                        path: "",
+                        element: <OrderHistoryPage />,
+                    },
+                ],
+            },
+            {
+                path: "*",
+                element: <NotFoundPage />,
             },
         ],
     },
